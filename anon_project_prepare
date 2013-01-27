@@ -1,0 +1,66 @@
+#!/bin/bash
+
+NORMAL="$(tput sgr0)"
+RED="$(tput bold ; tput setaf 1)"
+GREEN="$(tput bold ; tput setaf 2)"
+YELLOW="$(tput bold ; tput setaf 3)"
+
+_error() {
+  _log "${RED}$1"
+}
+
+_warn() {
+   _log "${YELLOW}$1"
+}
+
+_ok() {
+  _log "${GREEN}$1"
+}
+
+_info() {
+  _log "$1"
+}
+
+_log () {
+  echo -e "$1${NORMAL}"
+}
+
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+PROJECT_NAME=$1
+PROJECT_BASE_PATH=/var/www
+PROJECT_VHOST_PATH=/var/www
+VHOST_TEMPLATE_PATH=/var/www/template.conf
+HOST_FILE=/var/www/hosts
+DEFAULT_IP=127.0.0.1
+NEW_VHOST_NAME=$PROJECT_VHOST_PATH/$PROJECT_NAME.conf
+
+if [ -z $PROJECT_NAME ]; then
+  _error "I need a project name to continue."
+  exit
+fi
+
+#Download Drupal
+if [ -d $PROJECT_BASE_PATH ]; then
+  cd $PROJECT_BASE_PATH
+  _info "Downloading drupal, please wait."
+  #drush dl drupal --drupal-project-rename=$PROJECT_NAME
+  _ok "Drupal were downloaded to '$PROJECT_BASE_PATH/$PROJECT_NAME'"
+  cd $DIR
+else
+ _error "The project path '$PROJECT_BASE_PATH' was not found."
+  exit
+fi
+
+#Create new vhost file
+if [ -f $VHOST_TEMPLATE_PATH ]; then
+  _info "Creating chost file."
+  sed -e "s;%PROJECT_NAME%;$PROJECT_NAME;" -e "s;%PROJECT_BASE_PATH%;$PROJECT_BASE_PATH;" $VHOST_TEMPLATE_PATH > $NEW_VHOST_NAME
+  _ok "Vhost file created '$NEW_VHOST_NAME'"
+else
+  _error "The VHOST temaplte '$VHOST_TEMPLATE_PATH' was not found."
+  exit
+fi
+
+#Add an instace to the HOSTS file
+echo "$DEFAULT_IP $PROJECT_NAME"  >> $HOST_FILE
+_ok "'$DEFAULT_IP $PROJECT_NAME' added to the host file."
