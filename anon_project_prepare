@@ -28,9 +28,9 @@ _log () {
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 PROJECT_NAME=$1
 PROJECT_BASE_PATH=/var/www
-PROJECT_VHOST_PATH=/var/www
-VHOST_TEMPLATE_PATH=/var/www/template.conf
-HOST_FILE=/var/www/hosts
+PROJECT_VHOST_PATH=/etc/apache2/sites-enabled
+VHOST_TEMPLATE_PATH=$DIR/template.conf
+HOST_FILE=/etc/hosts
 DEFAULT_IP=127.0.0.1
 NEW_VHOST_NAME=$PROJECT_VHOST_PATH/$PROJECT_NAME.conf
 
@@ -43,7 +43,7 @@ fi
 if [ -d $PROJECT_BASE_PATH ]; then
   cd $PROJECT_BASE_PATH
   _info "Downloading drupal, please wait."
-  #drush dl drupal --drupal-project-rename=$PROJECT_NAME
+  drush dl drupal --drupal-project-rename=$PROJECT_NAME
   _ok "Drupal were downloaded to '$PROJECT_BASE_PATH/$PROJECT_NAME'"
   cd $DIR
 else
@@ -53,7 +53,7 @@ fi
 
 #Create new vhost file
 if [ -f $VHOST_TEMPLATE_PATH ]; then
-  _info "Creating chost file."
+  _info "Creating vhost file."
   sed -e "s;%PROJECT_NAME%;$PROJECT_NAME;" -e "s;%PROJECT_BASE_PATH%;$PROJECT_BASE_PATH;" $VHOST_TEMPLATE_PATH > $NEW_VHOST_NAME
   _ok "Vhost file created '$NEW_VHOST_NAME'"
 else
@@ -64,3 +64,5 @@ fi
 #Add an instace to the HOSTS file
 echo "$DEFAULT_IP $PROJECT_NAME"  >> $HOST_FILE
 _ok "'$DEFAULT_IP $PROJECT_NAME' added to the host file."
+
+service apache2 restart
