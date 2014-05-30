@@ -1,6 +1,17 @@
-anon_project_prepare
-====================
+# web_project_prepare
 
-Download Drupal, create a vhost file, and add IP and site name to the host file.
+A script to prepare a simple web project.
 
-Most be runned by sudo. Example <code>sudo ./anon_project_prepare [SITENAME]</code>
+It will:
+
+* Create a directory in `/var/www` with the name of the project.
+* Create a vhost file for apache from the provided `template.conf` file.
+* Add en entry int he host file.
+* Download Drupal core to the projects www directory *(optional)*.
+
+
+## Run
+
+```shell
+> web_project_prepare [PROJECT NAME]
+```
