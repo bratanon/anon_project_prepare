@@ -33,28 +33,51 @@ VHOST_TEMPLATE_PATH=$DIR/template.conf
 HOST_FILE=/etc/hosts
 DEFAULT_IP=127.0.0.1
 NEW_VHOST_NAME=$PROJECT_VHOST_PATH/$PROJECT_NAME.conf
+DOWNLOAD_DRUPAL=false
 
 if [ -z $PROJECT_NAME ]; then
   _error "I need a project name to continue."
   exit
 fi
 
-#Download Drupal
 if [ -d $PROJECT_BASE_PATH ]; then
   cd $PROJECT_BASE_PATH
-  _info "Downloading drupal, please wait."
-  drush dl drupal --drupal-project-rename=$PROJECT_NAME
-  _ok "Drupal were downloaded to '$PROJECT_BASE_PATH/$PROJECT_NAME'"
-  cd $DIR
+  _ok "Creating project directory."
+  mkdir -p $PROJECT_NAME/www
 else
  _error "The project path '$PROJECT_BASE_PATH' was not found."
   exit
 fi
 
+read -p "Download Drupal? [N/y] " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    _warn "Will download Drupal."
+    DOWNLOAD_DRUPAL=true
+fi
+
+#Download Drupal
+if [ "$DOWNLOAD_DRUPAL"=true ]; then
+  if [ -d $PROJECT_BASE_PATH ]; then
+    cd $PROJECT_BASE_PATH/$PROJECT_NAME
+    _info "Downloading drupal, please wait."
+    drush dl drupal --drupal-project-rename=www
+    _ok "Drupal were downloaded to '$PROJECT_BASE_PATH/$PROJECT_NAME'"
+    cd $DIR
+  else
+   _error "The project path DRUPAL '$PROJECT_BASE_PATH' was not found."
+    exit
+  fi
+fi
+
+_warn "I need sudo permissions to play around with the vhost and host file.";
+sudo -v
+
 #Create new vhost file
 if [ -f $VHOST_TEMPLATE_PATH ]; then
   _info "Creating vhost file."
-  sed -e "s;%PROJECT_NAME%;$PROJECT_NAME;" -e "s;%PROJECT_BASE_PATH%;$PROJECT_BASE_PATH;" $VHOST_TEMPLATE_PATH > $NEW_VHOST_NAME
+    sudo -- sh -c "sed -e 's;%PROJECT_NAME%;$PROJECT_NAME;' -e 's;%PROJECT_BASE_PATH%;$PROJECT_BASE_PATH;' $VHOST_TEMPLATE_PATH > $NEW_VHOST_NAME"
   _ok "Vhost file created '$NEW_VHOST_NAME'"
 else
   _error "The VHOST temaplte '$VHOST_TEMPLATE_PATH' was not found."
@@ -62,7 +85,7 @@ else
 fi
 
 #Add an instace to the HOSTS file
-echo "$DEFAULT_IP $PROJECT_NAME"  >> $HOST_FILE
+sudo -- sh -c "echo '$DEFAULT_IP   $PROJECT_NAME'  >> $HOST_FILE "
 _ok "'$DEFAULT_IP $PROJECT_NAME' added to the host file."
 
-service apache2 restart
+sudo service apache2 restart
