@@ -29,11 +29,15 @@ DIR="$( cd "$( dirname "$0" )" && pwd )"
 PROJECT_NAME=$1
 PROJECT_BASE_PATH=/var/www
 PROJECT_VHOST_PATH=/etc/apache2/sites-enabled
+
 VHOST_TEMPLATE_PATH=$DIR/template.conf
 HOST_FILE=/etc/hosts
 DEFAULT_IP=127.0.0.1
+
+MYSQL_USER=root
+MYSQL_PASS=password
+
 NEW_VHOST_NAME=$PROJECT_VHOST_PATH/$PROJECT_NAME.conf
-DOWNLOAD_DRUPAL=false
 
 if [ -z $PROJECT_NAME ]; then
   _error "I need a project name to continue."
@@ -53,20 +57,17 @@ read -p "Download Drupal? [N/y] " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
+    #Download Drupal
     _warn "Will download Drupal."
-    DOWNLOAD_DRUPAL=true
-fi
 
-#Download Drupal
-if [ "$DOWNLOAD_DRUPAL"=true ]; then
-  if [ -d $PROJECT_BASE_PATH ]; then
-    cd $PROJECT_BASE_PATH/$PROJECT_NAME
-    _info "Downloading drupal, please wait."
-    drush dl drupal --drupal-project-rename=www
-    _ok "Drupal were downloaded to '$PROJECT_BASE_PATH/$PROJECT_NAME'"
-    cd $DIR
-  else
-   _error "The project path DRUPAL '$PROJECT_BASE_PATH' was not found."
+    if [ -d $PROJECT_BASE_PATH ]; then
+      cd $PROJECT_BASE_PATH/$PROJECT_NAME
+      _info "Downloading drupal, please wait."
+      drush dl drupal --drupal-project-rename=www -y
+      _ok "Drupal were downloaded to '$PROJECT_BASE_PATH/$PROJECT_NAME'"
+      cd $DIR
+    else
+      _error "The project path DRUPAL '$PROJECT_BASE_PATH' was not found."
     exit
   fi
 fi
@@ -77,7 +78,7 @@ sudo -v
 #Create new vhost file
 if [ -f $VHOST_TEMPLATE_PATH ]; then
   _info "Creating vhost file."
-    sudo -- sh -c "sed -e 's;%PROJECT_NAME%;$PROJECT_NAME;' -e 's;%PROJECT_BASE_PATH%;$PROJECT_BASE_PATH;' $VHOST_TEMPLATE_PATH > $NEW_VHOST_NAME"
+  sudo -- sh -c "sed -e 's;{{PROJECT_NAME}};$PROJECT_NAME;g' -e 's;{{PROJECT_BASE_PATH}};$PROJECT_BASE_PATH;g' $VHOST_TEMPLATE_PATH > $NEW_VHOST_NAME"
   _ok "Vhost file created '$NEW_VHOST_NAME'"
 else
   _error "The VHOST temaplte '$VHOST_TEMPLATE_PATH' was not found."
@@ -85,7 +86,11 @@ else
 fi
 
 #Add an instace to the HOSTS file
-sudo -- sh -c "echo '$DEFAULT_IP   $PROJECT_NAME'  >> $HOST_FILE "
+sudo -- sh -c "echo '$DEFAULT_IP\t$PROJECT_NAME'  >> $HOST_FILE "
 _ok "'$DEFAULT_IP $PROJECT_NAME' added to the host file."
 
+_info "Restarting apache."
 sudo service apache2 restart
+
+_info "Creating mysql database."
+mysql -u$MYSQL_USER -p$MYSQL_PASS -e "CREATE DATABASE \`$PROJECT_NAME\`"
