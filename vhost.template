@@ -11,14 +11,14 @@
   # DNS loopback for xip.io
   ServerAlias {{PROJECT_NAME}}.*.xip.io
 
-  DocumentRoot {{PROJECT_BASE_PATH}}/{{PROJECT_NAME}}/www
+  DocumentRoot {{PROJECT_WEB_ROOT}}
 
-  ErrorLog ${APACHE_LOG_DIR}/{{PROJECT_NAME}}-error.log
+  ErrorLog ${APACHE_LOG_DIR}/{{PROJECT_NAME}}_error.log
 
   # Possible values include: debug, info, notice, warn, error, crit,
   # alert, emerg.
   LogLevel warn
 
-  CustomLog ${APACHE_LOG_DIR}/{{PROJECT_NAME}}-access.log combined
+  CustomLog ${APACHE_LOG_DIR}/{{PROJECT_NAME}}_access.log combined
 
 </VirtualHost>
