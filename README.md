@@ -4,10 +4,11 @@ A script to prepare a simple web project.
 
 It will:
 
-* Create a directory in `/var/www` with the name of the project.
-* Create a vhost file for apache from the provided `template.conf` file.
-* Add en entry int he host file.
+* Creates a directory in `/var/www` with the name of the project.
+* Creates a vhost file for apache from the provided `vhost.template` file.
+* Adds an entry int he host file.
 * Download Drupal core to the projects www directory *(optional)*.
+* Creates a mysql database with the project name *(optional)*.
 
 
 ## Run
