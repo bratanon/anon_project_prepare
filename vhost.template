@@ -13,6 +13,12 @@
 
   DocumentRoot {{PROJECT_WEB_ROOT}}
 
+  <Directory {{PROJECT_WEB_ROOT}}>
+    Order allow,deny
+    Allow from all
+    AllowOverride All
+  </Directory>
+
   ErrorLog ${APACHE_LOG_DIR}/{{PROJECT_NAME}}_error.log
 
   # Possible values include: debug, info, notice, warn, error, crit,
