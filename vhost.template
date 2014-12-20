@@ -19,12 +19,12 @@
     AllowOverride All
   </Directory>
 
-  ErrorLog ${APACHE_LOG_DIR}/{{PROJECT_NAME}}_error.log
+  ErrorLog /var/log/httpd/{{PROJECT_NAME}}_error.log
 
   # Possible values include: debug, info, notice, warn, error, crit,
   # alert, emerg.
   LogLevel warn
 
-  CustomLog ${APACHE_LOG_DIR}/{{PROJECT_NAME}}_access.log combined
+  CustomLog /var/log/httpd/{{PROJECT_NAME}}_access.log combined
 
 </VirtualHost>
