@@ -73,7 +73,7 @@ echo "Restarting apache."
 sudo service apache2 restart
 
 #Add an instace to the HOSTS file
-sudo -- sh -c "echo '$IP_ADDRESS\t$PROJECT_NAME' >> $HOST_FILE "
+sudo -- sh -c "echo -e '$IP_ADDRESS\t$PROJECT_NAME' >> $HOST_FILE"
 echo "'$IP_ADDRESS $PROJECT_NAME' added to the host file."
 
 # Create mysql databas?
