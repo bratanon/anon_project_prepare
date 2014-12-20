@@ -12,7 +12,7 @@ PROJECT_NAME=$1
 MYSQL_USER=root
 MYSQL_PASS=password
 
-WEB_ROOT=$HOME/www
+WEB_ROOT=/srv/http
 PROJECT_WEB_ROOT=$WEB_ROOT/$PROJECT_NAME/web
 
 APACHE_VHOST_PATH=/etc/httpd/conf/vhosts

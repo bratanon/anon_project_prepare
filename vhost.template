@@ -12,7 +12,6 @@
   ServerAlias {{PROJECT_NAME}}.*.xip.io
 
   DocumentRoot {{PROJECT_WEB_ROOT}}
-
   <Directory {{PROJECT_WEB_ROOT}}>
     Order allow,deny
     Allow from all
