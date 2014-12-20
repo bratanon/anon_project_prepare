@@ -66,11 +66,8 @@ echo "Creating vhost file."
 sudo -- sh -c "sed -e 's;{{PROJECT_NAME}};$PROJECT_NAME;g' -e 's;{{PROJECT_WEB_ROOT}};$PROJECT_WEB_ROOT;g' $APACHE_VHOST_PATH/vhost.template > $APACHE_VHOST_PATH/$PROJECT_NAME.conf"
 echo "Vhost file created '$APACHE_VHOST_PATH/$PROJECT_NAME.conf'"
 
-echo "Enable $PROJECT_NAME.conf site."
-sudo a2ensite $PROJECT_NAME.conf
-
 echo "Restarting apache."
-sudo service apache2 restart
+sudo systemctl restart httpd.service
 
 #Add an instace to the HOSTS file
 sudo -- sh -c "echo -e '$IP_ADDRESS\t$PROJECT_NAME' >> $HOST_FILE"
