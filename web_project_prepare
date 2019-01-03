@@ -4,7 +4,7 @@
 # Web project prepare
 # By BratAnon / Anon
 #
-# Usage : ./web_project_prepare foo.dev
+# Usage : ./web_project_prepare example.local
 #
 
 PROJECT_NAME=$1
@@ -12,10 +12,10 @@ PROJECT_NAME=$1
 MYSQL_USER=root
 MYSQL_PASS=password
 
-WEB_ROOT=/srv/http
+WEB_ROOT=/var/www
 PROJECT_WEB_ROOT=$WEB_ROOT/$PROJECT_NAME/web
 
-APACHE_VHOST_PATH=/etc/httpd/conf/vhosts
+APACHE_VHOST_PATH=/etc/apache2/sites-available
 
 HOST_FILE=/etc/hosts
 IP_ADDRESS=127.0.0.1
@@ -66,11 +66,14 @@ echo "Creating vhost file."
 sudo -- sh -c "sed -e 's;{{PROJECT_NAME}};$PROJECT_NAME;g' -e 's;{{PROJECT_WEB_ROOT}};$PROJECT_WEB_ROOT;g' $APACHE_VHOST_PATH/vhost.template > $APACHE_VHOST_PATH/$PROJECT_NAME.conf"
 echo "Vhost file created '$APACHE_VHOST_PATH/$PROJECT_NAME.conf'"
 
+echo "Enable site"
+sudo a2ensite $PROJECT_NAME.conf
+
 echo "Restarting apache."
-sudo systemctl restart httpd.service
+sudo systemctl restart apache2
 
 #Add an instace to the HOSTS file
-sudo -- sh -c "echo -e '$IP_ADDRESS\t$PROJECT_NAME' >> $HOST_FILE"
+sudo -- sh -c "echo '$IP_ADDRESS\t$PROJECT_NAME' >> $HOST_FILE"
 echo "'$IP_ADDRESS $PROJECT_NAME' added to the host file."
 
 # Create mysql databas?
